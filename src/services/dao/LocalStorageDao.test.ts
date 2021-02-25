@@ -15,7 +15,7 @@ const DEFAULT_CREATION_ELEMENT = {
 
 describe("LocalstorageDaoTests", () => {
   test("cannot instance without name ", () => {
-    expect(new LocalstorageDao<DaoElement>("")).toThrow();
+    expect(() => new LocalstorageDao<DaoElement>("")).toThrow();
   });
 
   test("can instance with name", () => {
