@@ -103,6 +103,9 @@ export class LocalstorageDao<ElementType extends MinimalDaoElementInterface>
   delete(id: number): ElementType | undefined {
     const allIds = this.getAllIds();
     const idIndex = allIds.indexOf(id);
+    if (idIndex === -1) {
+      throw new Error("cannot delete id " + id + " in " + this.elementName);
+    }
     allIds.splice(idIndex, 1);
     this.setAllIds(allIds);
     return this.deleteElement(id);
