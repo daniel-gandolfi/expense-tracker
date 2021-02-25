@@ -1,28 +1,20 @@
 import { Category, CategoryWithoutId } from "model/Category";
+import {LocalstorageDao} from "services/dao/LocalstorageDao";
 
 const categoryMap = new Map<number, Category>();
 
-let lastId = 0;
-function _createId() {
-  return ++lastId;
-}
+const categoryDao = new LocalstorageDao<Category>("__CATEGORY__");
 
 export function createCategory(category: CategoryWithoutId): Category {
-  const id = _createId();
-  const newCategory = {
-    id,
-    ...category,
-  };
-  categoryMap.set(id, newCategory);
-  return newCategory;
+  return categoryDao.create(category);
 }
 
 export function getCategoryById(id: number): Category | undefined {
-  return categoryMap.get(id);
+  return categoryDao.read(id);
 }
 
-export function getAllCategories(): IterableIterator<Category> {
-  return categoryMap.values();
+export function getAllCategories(): Iterable<Category> {
+  return categoryDao.readAll();
 }
 
 export function updateCategory(

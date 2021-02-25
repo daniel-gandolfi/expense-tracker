@@ -20,8 +20,8 @@ describe("categoryTests", () => {
     expect(categoryCreated).toBeTruthy();
   });
 
-  test("getCategory returns something", () => {
-    expect(getCategoryById(1)).toBeTruthy();
+  test("getCategory returns nothing", () => {
+    expect(getCategoryById(1)).toBeFalsy();
   });
 
   test("createCategory returns the new category with an id", () => {
@@ -48,7 +48,7 @@ describe("categoryTests", () => {
       name: "test",
     };
     createCategory(categoryToCreate);
-    expect(getAllCategories().next()).toBeDefined();
+    expect(getAllCategories()).toBeDefined();
   });
 
   test("getAllCategories returns an array containing the created category", () => {
@@ -84,7 +84,7 @@ describe("categoryTests", () => {
     let randomId;
     while ((randomId = Math.round(Math.random() * 10000))) {
       if (!existingIds.has(randomId)) {
-        expect(getCategoryById(randomId)).toBeUndefined();
+        expect(getCategoryById(randomId)).toBeFalsy();
         return;
       }
     }
