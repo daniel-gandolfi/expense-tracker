@@ -24,3 +24,23 @@ export function getCategoryById(id: number): Category | undefined {
 export function getAllCategories(): IterableIterator<Category> {
   return categoryMap.values();
 }
+
+export function updateCategory(
+  id: number,
+  update: Partial<CategoryWithoutId>
+): Category {
+  const categoryStored = getCategoryById(id);
+  if (!categoryStored) {
+    throw new Error("Category not found");
+  }
+  const categoryUpdatedLocally = {
+    ...categoryStored,
+    update,
+  };
+  categoryMap.set(id, categoryUpdatedLocally);
+  const categoryUpdated = getCategoryById(id);
+  if (!categoryUpdated) {
+    throw new Error("Category not found after update");
+  }
+  return categoryUpdated;
+}

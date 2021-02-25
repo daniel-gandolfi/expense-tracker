@@ -2,8 +2,13 @@ import {
   createCategory,
   getAllCategories,
   getCategoryById,
+  updateCategory,
 } from "services/category/CategoryService";
 import { CategoryColor } from "model/Category";
+
+function deepEquals(a: any, b: any) {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
 
 describe("categoryTests", () => {
   test("createCategory returns something", () => {
@@ -54,10 +59,8 @@ describe("categoryTests", () => {
     const categoryCreated = createCategory(categoryToCreate);
     for (const anyCategory of getAllCategories()) {
       if (anyCategory.id === categoryCreated.id) {
-        if (
-          anyCategory.name === categoryCreated.name &&
-          anyCategory.color === categoryCreated.color
-        ) {
+        const equal = deepEquals(anyCategory, categoryCreated);
+        if (equal) {
           return Promise.resolve();
         } else {
           throw new Error(
@@ -94,8 +97,26 @@ describe("categoryTests", () => {
     };
     const categoryCreated = createCategory(categoryToCreate);
     const retrievedCategory = getCategoryById(categoryCreated.id);
-    expect(JSON.stringify(categoryCreated)).toBe(
-      JSON.stringify(retrievedCategory)
-    );
+    expect(deepEquals(categoryCreated, retrievedCategory)).toBeTruthy();
+  });
+  test("updateCategory returns the same category after update", () => {
+    const categoryCreated = createCategory({
+      color: CategoryColor.OLIVE,
+      name: "test",
+    });
+    const retrievedCategory = getCategoryById(categoryCreated.id);
+
+    expect(retrievedCategory).toBeDefined();
+    if (retrievedCategory) {
+      const update1 = updateCategory(retrievedCategory.id, {
+        color: CategoryColor.BLACK,
+      });
+      expect(deepEquals(update1, getCategoryById(update1.id))).toBeTruthy();
+
+      const update2 = updateCategory(retrievedCategory.id, {
+        name: "test2",
+      });
+      expect(deepEquals(update2, getCategoryById(update1.id))).toBeTruthy();
+    }
   });
 });
