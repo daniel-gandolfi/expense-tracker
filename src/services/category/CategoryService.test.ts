@@ -1,5 +1,6 @@
 import {
   createCategory,
+  deleteCategory,
   getAllCategories,
   getCategoryById,
   updateCategory,
@@ -9,6 +10,10 @@ import { CategoryColor } from "model/Category";
 function deepEquals(a: any, b: any) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
+const DEFAULT_CREATION_ELEMENT = {
+  color: CategoryColor.OLIVE,
+  name: "test",
+};
 
 describe("categoryTests", () => {
   test("createCategory returns something", () => {
@@ -100,10 +105,7 @@ describe("categoryTests", () => {
     expect(deepEquals(categoryCreated, retrievedCategory)).toBeTruthy();
   });
   test("updateCategory returns the same category after update", () => {
-    const categoryCreated = createCategory({
-      color: CategoryColor.OLIVE,
-      name: "test",
-    });
+    const categoryCreated = createCategory(DEFAULT_CREATION_ELEMENT);
     const retrievedCategory = getCategoryById(categoryCreated.id);
 
     expect(retrievedCategory).toBeDefined();
@@ -118,5 +120,21 @@ describe("categoryTests", () => {
       });
       expect(deepEquals(update2, getCategoryById(update1.id))).toBeTruthy();
     }
+  });
+
+  test("deleteCategory with no id should break", () => {
+    expect(deleteCategory).toThrow();
+  });
+
+  test("deleteCategory should delete after creation", () => {
+    const { id } = createCategory(DEFAULT_CREATION_ELEMENT);
+    expect(deleteCategory(id)).toBeTruthy();
+    expect(getCategoryById(id)).toBeFalsy();
+  });
+
+  test("deleteCategory returns the deleted element", () => {
+    const createdCategory = createCategory(DEFAULT_CREATION_ELEMENT);
+    const deletedCategory = deleteCategory(createdCategory.id);
+    expect(deepEquals(createdCategory, deletedCategory)).toBeTruthy();
   });
 });
