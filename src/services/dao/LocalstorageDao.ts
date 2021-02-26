@@ -1,7 +1,7 @@
 import {
   AbstractDao,
   MinimalDaoElementInterface,
-} from "services/dao/AbstractDao";
+} from "services/dao/interfaces";
 
 const STANDARD_PREFIX = "DAO_";
 const SEQUENCE_LAST_ID_SUFFIX = "LAST_ID";

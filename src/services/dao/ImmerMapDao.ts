@@ -1,20 +1,25 @@
 import {
   AbstractDao,
   MinimalDaoElementInterface,
-} from "services/dao/AbstractDao";
+  ReactiveDao,
+} from "services/dao/interfaces";
 import produce, {
   enableMapSet,
   enablePatches,
   produceWithPatches,
 } from "immer";
-import { from } from "rxjs";
+import { from, Subject } from "rxjs";
 import { max, pluck, tap } from "rxjs/operators";
 
 enableMapSet();
 enablePatches();
 
 export class ImmerMapDao<ElementType extends MinimalDaoElementInterface>
-  implements AbstractDao<ElementType> {
+  implements AbstractDao<ElementType>, ReactiveDao<ElementType> {
+  elementAdded$: Subject<ElementType> = new Subject();
+  elementDeleted$: Subject<ElementType> = new Subject();
+  elementUpdated$: Subject<[ElementType, ElementType]> = new Subject();
+
   private elementMap = new Map<number, ElementType>();
   private lastId = 0;
 
@@ -29,7 +34,10 @@ export class ImmerMapDao<ElementType extends MinimalDaoElementInterface>
   }
 
   private getId(): number {
-    return ++this.lastId;
+    while (this.elementMap.has(this.lastId)) {
+      ++this.lastId;
+    }
+    return this.lastId;
   }
 
   create(newElement: Omit<ElementType, "id">): ElementType {
@@ -41,6 +49,7 @@ export class ImmerMapDao<ElementType extends MinimalDaoElementInterface>
     this.elementMap = produce((mapProxy) =>
       mapProxy.set(newId, newElementWithId)
     )(this.elementMap);
+    this.elementAdded$.next(newElementWithId);
     return newElementWithId;
   }
 
@@ -60,14 +69,20 @@ export class ImmerMapDao<ElementType extends MinimalDaoElementInterface>
     if (!currentValue) {
       throw new Error("cannot update non existing value, use create instead");
     }
-    const newValue = {
-      ...currentValue,
-      update,
-    } as ElementType;
-    const patch = produceWithPatches((mapProxy) => mapProxy.set(id, newValue))(
-      this.elementMap
-    );this.elementMap = patch[0];
-    return patch[2][0].value;
+
+    const patch = produceWithPatches((mapProxy) =>
+      mapProxy.set(id, {
+        ...currentValue,
+        update,
+      })
+    )(this.elementMap);
+    this.elementMap = patch[0];
+
+    const oldValue = patch[1][0].value;
+    const newValue = patch[2][0].value;
+
+    this.elementUpdated$.next([oldValue, newValue]);
+    return newValue;
   }
 
   delete(id: number): ElementType | undefined {
@@ -75,9 +90,11 @@ export class ImmerMapDao<ElementType extends MinimalDaoElementInterface>
       mapProxy.delete(id);
     })(this.elementMap);
     this.elementMap = patch[0];
-    const newVarElement = patch[2];
-    if (newVarElement) {
-      return newVarElement[0].value;
+    const oldValuePatch = patch[2];
+    if (oldValuePatch && oldValuePatch.length !== 0) {
+      const removedElement = oldValuePatch[0].value;
+      this.elementDeleted$.next(removedElement);
+      return removedElement;
     } else {
       throw new Error("Trying delete inexisting element");
     }
