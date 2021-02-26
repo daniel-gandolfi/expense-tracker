@@ -69,10 +69,12 @@ describe("Transaction balance Tests", () => {
       createTransactionModelWithoutId(new Date(), 3, "1", true, 0, "", 0)
     );
     const newAmount = 1231231;
-    const transaction1AfterUpdate = updateTransaction(transaction1Created.id, {amount: newAmount});
+    const transaction1AfterUpdate = updateTransaction(transaction1Created.id, {
+      amount: newAmount,
+    });
 
-    expect(transaction1Created.amount).not.toBe(transaction1AfterUpdate.amount);
-    expect(transaction1AfterUpdate.amount).toBe(newAmount);
+    expect(transaction1Created.amount).toBe(transaction1AfterUpdate.amount);
+    expect(transaction1AfterUpdate.amount).not.toBe(newAmount);
   });
   test("updateTransaction changes balance", () => {
     const transaction1Created = createTransaction(
@@ -83,8 +85,9 @@ describe("Transaction balance Tests", () => {
     );
     const balanceAfterAdd = getBalance();
 
-    const updateTransaction1AfterUpdate = updateTransaction(transaction1Created.id, {amount: 1231231});
+    const newAmount = 1111;
+    updateTransaction(transaction1Created.id, {amount: newAmount});
 
-    expect(getBalance()).toBe(balanceAfterAdd - transaction1Created.amount + updateTransaction1AfterUpdate.amount);
+    expect(getBalance()).toBe(balanceAfterAdd - transaction1Created.amount + newAmount);
   });
 });

@@ -1,7 +1,9 @@
-import { LocalstorageDao } from "services/dao/LocalstorageDao";
-import { Transaction } from "model/Transaction";
+import {Transaction} from "model/Transaction";
+import {ImmerMapDao} from "services/dao/ImmerMapDao";
 
-const transactionDao = new LocalstorageDao<Transaction>("__TRANSACTION__");
+const transactionDao = new ImmerMapDao<Transaction>(
+  JSON.parse(localStorage.getItem("transactions") || "[]")
+);
 
 let balance = JSON.parse(localStorage.getItem("balance") || "0") || 0;
 for (const transaction of transactionDao.readAll()) {
@@ -11,37 +13,23 @@ function setBalance(amount: number) {
   balance = amount;
   localStorage.setItem("balance", JSON.stringify(amount));
 }
+transactionDao.elementAdded$.subscribe(({ amount }) =>
+  setBalance(balance + amount)
+);
+transactionDao.elementDeleted$.subscribe(({ amount }) =>
+  setBalance(balance - amount)
+);
+transactionDao.elementUpdated$.subscribe(
+  ([{ amount: amountBefore }, { amount: amountAfter }]) =>
+    setBalance(balance - amountBefore + amountAfter)
+);
+
 export function getBalance() {
   return balance;
 }
 
-export function createTransaction(transaction: Omit<Transaction, "id">) {
-  const transactionCreated = transactionDao.create(transaction);
-  setBalance(balance + transactionCreated.amount);
-  return transactionCreated;
-}
-export function getTransactionById(id: number) {
-  return transactionDao.read(id);
-}
-export function getAllTransactions() {
-  return transactionDao.readAll();
-}
-export function deleteTransaction(id: number) {
-  const transactionRemoved = transactionDao.delete(id);
-  if (transactionRemoved) {
-    setBalance(balance - transactionRemoved.amount);
-  }
-  return transactionRemoved;
-}
-export function updateTransaction(
-  id: number,
-  transaction: Partial<Transaction>
-) {
-  const transactionBeforeUpdate = getTransactionById(id);
-  const transactionAfterUpdate = transactionDao.update(id, transaction);
-  if (transactionBeforeUpdate) {
-    setBalance(balance - transactionBeforeUpdate.amount);
-  }
-  setBalance(balance + transactionAfterUpdate.amount);
-  return transactionAfterUpdate;
-}
+export const createTransaction = transactionDao.create.bind(transactionDao);
+export const getTransactionById = transactionDao.read.bind(transactionDao);
+export const getAllTransactions = transactionDao.readAll.bind(transactionDao);
+export const deleteTransaction = transactionDao.delete.bind(transactionDao);
+export const updateTransaction = transactionDao.update.bind(transactionDao);
