@@ -25,7 +25,7 @@ function deepEquals(a: DaoElement | undefined, b: DaoElement | undefined) {
 }
 const DEFAULT_ELEMENT_NAME = "daoTest";
 const DEFAULT_CREATION_ELEMENT = {
-  label: " ",
+  label: "123",
 };
 
 const abstractDaoList = [
@@ -120,25 +120,24 @@ abstractDaoList.forEach((abstractDaoWrapper) => {
     );
 
     test(
-      abstractDaoWrapper.name + ".update returns the same element after update",
+      abstractDaoWrapper.name + ".update returns the old element after update",
       () => {
         const createdElement = abstractDao.create(DEFAULT_CREATION_ELEMENT);
-        const retrievedElement = abstractDao.read(createdElement.id);
 
-        expect(retrievedElement).toBeDefined();
-        if (retrievedElement) {
-          const update1 = abstractDao.update(retrievedElement.id, {
+        expect(abstractDao.read(createdElement.id)).toBeDefined();
+        if (createdElement) {
+          const update1 = abstractDao.update(createdElement.id, {
             label: "update1",
           });
-          expect(
-            deepEquals(update1, abstractDao.read(update1.id))
-          ).toBeTruthy();
+          const readAfterUpdate1 = abstractDao.read(update1.id);
+          expect(readAfterUpdate1).toBeDefined();
+          expect(deepEquals(createdElement, readAfterUpdate1)).toBeFalsy();
 
-          const update2 = abstractDao.update(retrievedElement.id, {
+          const update2 = abstractDao.update(createdElement.id, {
             label: "update2",
           });
-          const retrievedValueAfterUpdate = abstractDao.read(update1.id);
-          expect(deepEquals(update2, retrievedValueAfterUpdate)).toBeTruthy();
+          const readAfterUpdate2 = abstractDao.read(update1.id);
+          expect(deepEquals(update2, readAfterUpdate2)).toBeFalsy();
         }
       }
     );

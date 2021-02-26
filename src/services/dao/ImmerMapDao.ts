@@ -46,9 +46,9 @@ export class ImmerMapDao<ElementType extends MinimalDaoElementInterface>
       ...newElement,
       id: newId,
     } as ElementType;
-    this.elementMap = produce((mapProxy) =>
-      mapProxy.set(newId, newElementWithId)
-    )(this.elementMap);
+    this.elementMap = produce((mapProxy) => {
+      mapProxy.set(newId, newElementWithId);
+    })(this.elementMap);
     this.elementAdded$.next(newElementWithId);
     return newElementWithId;
   }
@@ -65,24 +65,23 @@ export class ImmerMapDao<ElementType extends MinimalDaoElementInterface>
   }
 
   update(id: number, update: Partial<ElementType>) {
-    const currentValue = this.elementMap.get(id);
-    if (!currentValue) {
+    const oldValueInMap = this.elementMap.get(id);
+    if (!oldValueInMap) {
       throw new Error("cannot update non existing value, use create instead");
     }
 
-    const patch = produceWithPatches((mapProxy) =>
+    const patch = produceWithPatches((mapProxy) => {
       mapProxy.set(id, {
-        ...currentValue,
-        update,
+        ...oldValueInMap,
+        ...update,
       })
-    )(this.elementMap);
+    })(this.elementMap);
     this.elementMap = patch[0];
 
-    const oldValue = patch[1][0].value;
-    const newValue = patch[2][0].value;
+    const newValue = patch[1][0].value;
 
-    this.elementUpdated$.next([oldValue, newValue]);
-    return newValue;
+    this.elementUpdated$.next([oldValueInMap, newValue]);
+    return oldValueInMap;
   }
 
   delete(id: number): ElementType | undefined {

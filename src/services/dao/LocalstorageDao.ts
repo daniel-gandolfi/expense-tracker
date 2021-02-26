@@ -88,14 +88,14 @@ export class LocalstorageDao<ElementType extends MinimalDaoElementInterface>
     return this.getElement(id);
   }
   update(id: number, update: Partial<ElementType>) {
-    const element = this.getElement(id);
-    if (element) {
+    const oldElement = this.getElement(id);
+    if (oldElement) {
       const updatedElement = {
-        ...element,
-        update,
+        ...oldElement,
+        ...update,
       };
       this.setElement(id, updatedElement);
-      return updatedElement;
+      return oldElement;
     } else {
       throw new Error("cannot update non existing element");
     }

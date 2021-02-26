@@ -104,7 +104,7 @@ describe("categoryTests", () => {
     const retrievedCategory = getCategoryById(categoryCreated.id);
     expect(deepEquals(categoryCreated, retrievedCategory)).toBeTruthy();
   });
-  test("updateCategory returns the same category after update", () => {
+  test("updateCategory returns the previous category after update", () => {
     const categoryCreated = createCategory(DEFAULT_CREATION_ELEMENT);
     const retrievedCategory = getCategoryById(categoryCreated.id);
 
@@ -113,12 +113,12 @@ describe("categoryTests", () => {
       const update1 = updateCategory(retrievedCategory.id, {
         color: CategoryColor.BLACK,
       });
-      expect(deepEquals(update1, getCategoryById(update1.id))).toBeTruthy();
+      expect(deepEquals(update1, getCategoryById(update1.id))).toBeFalsy();
 
       const update2 = updateCategory(retrievedCategory.id, {
         name: "test2",
       });
-      expect(deepEquals(update2, getCategoryById(update1.id))).toBeTruthy();
+      expect(deepEquals(update2, getCategoryById(update1.id))).toBeFalsy();
     }
   });
 
