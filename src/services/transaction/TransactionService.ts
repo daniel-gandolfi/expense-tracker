@@ -1,7 +1,7 @@
 import { Transaction } from 'model/Transaction';
 import { ImmerMapDao } from 'services/dao/ImmerMapDao';
 import { from } from 'rxjs';
-import {filter, reduce, shareReplay} from 'rxjs/operators';
+import { filter, reduce, shareReplay } from 'rxjs/operators';
 
 const transactionDao = new ImmerMapDao<Transaction>(
   JSON.parse(localStorage.getItem('transactions') || '[]')
@@ -34,31 +34,37 @@ export const getTransactionById = transactionDao.read.bind(transactionDao);
 export const getAllTransactions = transactionDao.readAll.bind(transactionDao);
 export const deleteTransaction = transactionDao.delete.bind(transactionDao);
 export const updateTransaction = transactionDao.update.bind(transactionDao);
-export function getBalanceForDay(day: number, month: number, year: number) {
-  return from(transactionDao.readAll()).pipe(
+
+export function getTransactionForYear(year: number) {
+  return from(getAllTransactions()).pipe(filter(({ date }) => date.getFullYear() === year));
+}
+export function getTransactionForMonth(year: number, month: number) {
+  return getTransactionForYear(year).pipe(filter(({ date }) => date.getMonth() === month));
+}
+export function getTransactionForDay(year: number, month: number, day: number) {
+  return getTransactionForMonth(year, month).pipe(filter(({ date }) => date.getDate() === day));
+}
+
+export function getBalanceForDay(year: number, month:number, day: number) {
+  return getTransactionForDay(year, month, day).pipe(
     keepConfirmedTransaction,
-    filter(
-      (t) => t.date.getDate() == day && t.date.getMonth() === month && t.date.getFullYear() === year
-    ),
     getBalanceFromTransactionStream,
-      shareReplay(1)
+    shareReplay(1)
   );
 }
-export function getBalanceForMonth(month: number, year: number) {
-  return from(transactionDao.readAll()).pipe(
+export function getBalanceForMonth(year: number, month: number) {
+  return getTransactionForMonth(year, month).pipe(
     keepConfirmedTransaction,
-
     filter((t) => t.date.getMonth() === month && t.date.getFullYear() === year),
     getBalanceFromTransactionStream,
-      shareReplay(1)
+    shareReplay(1)
   );
 }
 export function getBalanceForYear(year: number) {
-  return from(transactionDao.readAll()).pipe(
+  return getTransactionForYear(year).pipe(
     keepConfirmedTransaction,
-    filter((t) => t.date.getFullYear() === year),
     getBalanceFromTransactionStream,
-      shareReplay(1)
+    shareReplay(1)
   );
 }
 
@@ -71,6 +77,6 @@ export function getBalanceBetween(beginDateInclusive: Date, endDateExclusive: Da
         t.date.getTime() < endDateExclusive.getTime()
     ),
     getBalanceFromTransactionStream,
-      shareReplay(1)
+    shareReplay(1)
   );
 }
