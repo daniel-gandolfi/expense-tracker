@@ -1,5 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { GridList, GridListTile } from '@material-ui/core';
+import {
+  Card,
+  CardContent,
+  GridList,
+  GridListTile,
+  Typography
+} from '@material-ui/core';
 import { groupBy } from 'lodash';
 import {
   getDayArrayForMonth,
@@ -9,7 +15,7 @@ import {
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
 import { TransactionModel } from 'collection/TransactionCollection';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
-import {formatMoneyLocal} from "ui/utils/formatting";
+import { formatMoneyLocal } from 'ui/utils/formatting';
 
 type SingleDayProps = {
   year: number;
@@ -20,14 +26,20 @@ type SingleDayProps = {
 
 function SingleDayWithTransactions({ year, month, day, transactionList }: SingleDayProps) {
   return (
-    <>
-      <div>{singleDayFormatter.format(new Date(year, month, day))}</div>
-      <div>
+    <Card>
+      <CardContent>
+        <Typography variant="h6" component="h4">
+          {singleDayFormatter.format(new Date(year, month, day))}
+        </Typography>
         {transactionList.map((transaction) => (
-          <div key={transaction._id}>{transaction.label + ' ' + formatMoneyLocal(transaction.amount / 100)}</div>
+          <Typography variant="body2" key={transaction._id}>
+            <span>{formatMoneyLocal(transaction.amount / 100)}</span>
+            &nbsp;
+            <span>{transaction.label}</span>
+          </Typography>
         ))}
-      </div>
-    </>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -47,7 +59,7 @@ export function MonthPreviewWithTransactions({ year, month }: MonthPreviewProps)
 
     return getDayArrayForMonth(year, month).map(function (day) {
       return (
-        <GridListTile key={day} cols={1}>
+        <GridListTile key={day} cols={1} style={{ background: '#f5f5f5' }}>
           <SingleDayWithTransactions
             year={year}
             month={month}

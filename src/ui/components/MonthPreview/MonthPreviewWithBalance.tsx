@@ -34,7 +34,7 @@ export function MonthPreviewWithBalanceOnly({ year, month }: MonthPreviewProps) 
   ));
 
   return (
-    <GridList cols={7} spacing={10}>
+    <GridList cols={7} spacing={10} style={{ background: '#f5f5f5' }}>
       {dayList}
     </GridList>
   );
