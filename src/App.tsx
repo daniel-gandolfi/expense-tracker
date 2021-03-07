@@ -12,6 +12,7 @@ import {
   Route,Redirect
 } from "react-router-dom";
 import {MonthBalance} from "ui/components/MonthBalance";
+import {createMonthBalanceRoute, MONTH_BALANCE_ROUTE} from "ui/utils/routes";
 
 function App() {
   const [dateToShow, ] = useState<Date>(new Date());
@@ -48,11 +49,11 @@ function App() {
             <Header month={dateToShow.getMonth()} year={dateToShow.getFullYear()} />
 
             <Switch>
-              <Route path="/balance/byMonth/:year/:month" >
+              <Route path={MONTH_BALANCE_ROUTE} >
                 <MonthBalance/>
               </Route>
               <Route path={"/"}>
-                <Redirect to={`/balance/byMonth/${new Date().getFullYear()}/${new Date().getMonth()}`}/>
+                <Redirect to={createMonthBalanceRoute(new Date().getFullYear(), new Date().getMonth())}/>
               </Route>
             </Switch>
           </Router>
