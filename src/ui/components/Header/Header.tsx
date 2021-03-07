@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container } from '@material-ui/core';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import {formatMoneyLocal} from "ui/utils/formatting";
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat(navigator.language || 'it_IT', {
@@ -24,7 +25,7 @@ export function Header({ month, year }: HeaderProps) {
     <Container>
       <>
         <h1>{formatDate(monthStartDate)}</h1>
-        <div>{totalBalance}</div>
+        <div>{formatMoneyLocal(totalBalance/100)}</div>
       </>
     </Container>
   );

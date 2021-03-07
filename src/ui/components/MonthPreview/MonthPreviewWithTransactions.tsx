@@ -9,6 +9,7 @@ import {
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
 import { TransactionModel } from 'collection/TransactionCollection';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
+import {formatMoneyLocal} from "ui/utils/formatting";
 
 type SingleDayProps = {
   year: number;
@@ -23,7 +24,7 @@ function SingleDayWithTransactions({ year, month, day, transactionList }: Single
       <div>{singleDayFormatter.format(new Date(year, month, day))}</div>
       <div>
         {transactionList.map((transaction) => (
-          <div key={transaction._id}>{transaction.label + ' ' + transaction.amount / 100}</div>
+          <div key={transaction._id}>{transaction.label + ' ' + formatMoneyLocal(transaction.amount / 100)}</div>
         ))}
       </div>
     </>

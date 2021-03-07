@@ -7,6 +7,7 @@ import {
 } from 'ui/components/MonthPreview/common';
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
+import {formatMoneyLocal} from "ui/utils/formatting";
 
 type SingleDayProps = {
   year: number;
@@ -21,7 +22,7 @@ function SingleDayWithBalance({ year, month, day }: SingleDayProps) {
   return (
     <>
       <div>{singleDayFormatter.format(new Date(year, month, day))}</div>
-      <div>{balanceForDay / 100}</div>
+      <div>{formatMoneyLocal(balanceForDay / 100)}</div>
     </>
   );
 }
