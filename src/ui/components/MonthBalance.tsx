@@ -6,19 +6,19 @@ import {createMonthBalanceRoute} from "ui/utils/routes";
 
 export function MonthBalance() {
   const history = useHistory();
-  const { month, year } = useParams<{month:string, year:string}>();
-  const yearNumber = year ? +year : new Date().getFullYear();
-  const monthNumber= month ? +month : new Date().getMonth();
+  const { monthParam, yearParam } = useParams<{monthParam:string, yearParam:string}>();
+  const year = yearParam ? +yearParam : new Date().getFullYear();
+  const month = monthParam ? +monthParam : new Date().getMonth();
 
   function onSwipeRight() {
-    const newMonth = monthNumber !== 0 ? monthNumber - 1 : 11;
-    const newYear = newMonth !== 11 ? yearNumber : yearNumber - 1;
+    const newMonth = month !== 0 ? month - 1 : 11;
+    const newYear = newMonth !== 11 ? year : year - 1;
     history.push(createMonthBalanceRoute(newYear, newMonth));
   }
 
   function onSwipeLeft() {
-    const newMonth = monthNumber !== 11 ? monthNumber + 1 : 0;
-    const newYear = newMonth !== 0 ? yearNumber : yearNumber + 1;
+    const newMonth = month !== 11 ? month + 1 : 0;
+    const newYear = newMonth !== 0 ? year : year + 1;
     history.push(createMonthBalanceRoute(newYear, newMonth));
   }
   return (
@@ -30,7 +30,7 @@ export function MonthBalance() {
       innerRef={(x) => {
         x;
       }}>
-      <MonthPreview month={monthNumber} year={yearNumber} />
+      <MonthPreview month={month} year={year} />
     </Swipe>
   );
 }
