@@ -1,140 +1,137 @@
-import {
-  createCategory,
-  deleteCategory,
-  getAllCategories,
-  getCategoryById,
-  updateCategory,
-} from "services/category/CategoryService";
-import { CategoryColor } from "model/Category";
+import { CategoryColor } from 'collection/CategoryCollection';
+import { categoryDao } from 'services/category/CategoryService';
 
 function deepEquals(a: any, b: any) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 const DEFAULT_CREATION_ELEMENT = {
   color: CategoryColor.OLIVE,
-  name: "test",
+  name: 'test'
 };
 
-describe("categoryTests", () => {
-  test("createCategory returns something", () => {
+describe('categoryTests', () => {
+  test('createCategory returns something', () => {
     const categoryToCreate = {
       color: CategoryColor.BLU,
-      name: "test",
+      name: 'test'
     };
-    const categoryCreated = createCategory(categoryToCreate);
+    const categoryCreated = categoryDao.upsert(categoryToCreate);
     expect(categoryCreated).toBeTruthy();
   });
 
-  test("getCategory returns nothing", () => {
-    expect(getCategoryById(1)).toBeFalsy();
+  test('getCategory returns nothing', () => {
+    categoryDao.findById('1').then((res) => expect(res._id).toBeUndefined());
   });
 
-  test("createCategory returns the new category with an id", () => {
+  test('createCategory returns the new category with an id', () => {
     const categoryToCreate = {
       color: CategoryColor.RED,
-      name: "test",
+      name: 'test'
     };
-    const categoryCreated = createCategory(categoryToCreate);
-    expect(categoryCreated).toBeTruthy();
-    expect(categoryCreated.color).toBe(categoryToCreate.color);
-    expect(categoryCreated.name).toBe(categoryToCreate.name);
-    expect(categoryCreated.id).not.toBeNull();
-    expect(categoryCreated.id).not.toBeNaN();
-    expect(categoryCreated.id).toBeDefined();
+    const categoryCreatedPromise = categoryDao.upsert(categoryToCreate);
+    categoryCreatedPromise.then((categoryCreated) => {
+      expect(categoryCreated).toBeTruthy();
+      expect(categoryCreated.color).toBe(categoryToCreate.color);
+      expect(categoryCreated.name).toBe(categoryToCreate.name);
+      expect(categoryCreated._id).not.toBeNull();
+      expect(categoryCreated._id).not.toBeNaN();
+      expect(categoryCreated._id).toBeDefined();
+    });
   });
 
-  test("getAllCategories returns something", () => {
-    expect(getAllCategories()).toBeTruthy();
+  test('getAllCategories returns something', () => {
+    categoryDao.find().then((res) => expect(res).toBeTruthy());
   });
 
-  test("getAllCategories returns something after a creation", () => {
+  test('getAllCategories returns something after a creation', () => {
     const categoryToCreate = {
       color: CategoryColor.OLIVE,
-      name: "test",
+      name: 'test'
     };
-    createCategory(categoryToCreate);
-    expect(getAllCategories()).toBeDefined();
+    categoryDao.upsert(categoryToCreate).then(function (createdCategory) {
+      categoryDao.find().then(function (res) {
+        expect(res.length).toBe(1);
+      });
+    });
   });
 
-  test("getAllCategories returns an array containing the created category", () => {
+  test('getAllCategories returns an array containing the created category', () => {
+    categoryDao
+      .upsert({
+        color: CategoryColor.OLIVE,
+        name: 'test'
+      })
+      .then(function (categoryCreated) {
+        categoryDao.find().then(function (transactionList) {
+          for (const anyCategory of transactionList) {
+            if (anyCategory._id === categoryCreated._id) {
+              const equal = deepEquals(anyCategory, categoryCreated);
+              if (equal) {
+                return Promise.resolve();
+              } else {
+                throw new Error(
+                  'categoryCreated has not the same fields after retrieval ' +
+                    'categoryCreated: ' +
+                    categoryCreated +
+                    ' categoryFound: ' +
+                    anyCategory
+                );
+              }
+            }
+          }
+          throw new Error('created category was not found in getAllCategories');
+        });
+      });
+  });
+
+  test('getCategoryById returns the same category after creation', () => {
     const categoryToCreate = {
       color: CategoryColor.OLIVE,
-      name: "test",
+      name: 'test'
     };
-    const categoryCreated = createCategory(categoryToCreate);
-    for (const anyCategory of getAllCategories()) {
-      if (anyCategory.id === categoryCreated.id) {
-        const equal = deepEquals(anyCategory, categoryCreated);
-        if (equal) {
-          return Promise.resolve();
-        } else {
-          throw new Error(
-            "categoryCreated has not the same fields after retrieval " +
-              "categoryCreated: " +
-              categoryCreated +
-              " categoryFound: " +
-              anyCategory
-          );
+    categoryDao.upsert(categoryToCreate).then(function (categoryCreated) {
+      categoryDao.findById(categoryCreated._id || '').then((retrievedCategory) => {
+        expect(deepEquals(categoryCreated, retrievedCategory)).toBeTruthy();
+      });
+    });
+  });
+  test('updateCategory returns the previous category after update', () => {
+    categoryDao.upsert(DEFAULT_CREATION_ELEMENT).then(function (categoryCreated) {
+      categoryDao.findById(categoryCreated._id || '').then(function (retrievedCategory) {
+        expect(retrievedCategory).toBeDefined();
+        if (retrievedCategory) {
+          categoryDao
+            .upsert({
+              ...retrievedCategory,
+              color: CategoryColor.BLACK
+            })
+            .then(function () {
+              return categoryDao.findById(retrievedCategory._id || '').then(function (update1) {
+                expect(deepEquals(update1, update1)).toBeFalsy();
+
+                categoryDao
+                  .upsert({
+                    ...update1,
+                    name: 'test2'
+                  })
+                  .then(function (update2) {
+                    expect(deepEquals(update2, update1)).toBeFalsy();
+                  });
+              });
+            });
         }
-      }
-    }
-    throw new Error("created category was not found in getAllCategories");
-  });
-
-  test("getCategoryById returns undefined if requesting inexistent id", () => {
-    const existingIds = new Set<Number>();
-    for (const anyCategory of getAllCategories()) {
-      existingIds.add(anyCategory.id);
-    }
-    let randomId;
-    while ((randomId = Math.round(Math.random() * 10000))) {
-      if (!existingIds.has(randomId)) {
-        expect(getCategoryById(randomId)).toBeFalsy();
-        return;
-      }
-    }
-  });
-
-  test("getCategoryById returns the same category after creation", () => {
-    const categoryToCreate = {
-      color: CategoryColor.OLIVE,
-      name: "test",
-    };
-    const categoryCreated = createCategory(categoryToCreate);
-    const retrievedCategory = getCategoryById(categoryCreated.id);
-    expect(deepEquals(categoryCreated, retrievedCategory)).toBeTruthy();
-  });
-  test("updateCategory returns the previous category after update", () => {
-    const categoryCreated = createCategory(DEFAULT_CREATION_ELEMENT);
-    const retrievedCategory = getCategoryById(categoryCreated.id);
-
-    expect(retrievedCategory).toBeDefined();
-    if (retrievedCategory) {
-      const update1 = updateCategory(retrievedCategory.id, {
-        color: CategoryColor.BLACK,
       });
-      expect(deepEquals(update1, getCategoryById(update1.id))).toBeFalsy();
+    });
+  });
 
-      const update2 = updateCategory(retrievedCategory.id, {
-        name: "test2",
+  test('deleteCategory should delete after creation', () => {
+    categoryDao.upsert(DEFAULT_CREATION_ELEMENT).then(({ _id }) => {
+      categoryDao.removeById(_id || '').then(function () {
+        categoryDao.findById(_id || '').then((categoryAfterInsert) => {
+          expect(categoryAfterInsert._id).toBeFalsy();
+        });
       });
-      expect(deepEquals(update2, getCategoryById(update1.id))).toBeFalsy();
-    }
+    });
   });
 
-  test("deleteCategory with no id should break", () => {
-    expect(deleteCategory).toThrow();
-  });
-
-  test("deleteCategory should delete after creation", () => {
-    const { id } = createCategory(DEFAULT_CREATION_ELEMENT);
-    expect(deleteCategory(id)).toBeTruthy();
-    expect(getCategoryById(id)).toBeFalsy();
-  });
-
-  test("deleteCategory returns the deleted element", () => {
-    const createdCategory = createCategory(DEFAULT_CREATION_ELEMENT);
-    const deletedCategory = deleteCategory(createdCategory.id);
-    expect(deepEquals(createdCategory, deletedCategory)).toBeTruthy();
-  });
 });

@@ -1,7 +1,7 @@
 export type Owner = {
-    id: number;
-    name: string;
-    email: string;
-}
+  id: number;
+  name: string;
+  email: string;
+};
 
-export type OwnerWithoutId = Omit<Owner, "id">;
+export type OwnerWithoutId = Omit<Owner, 'id'>;
