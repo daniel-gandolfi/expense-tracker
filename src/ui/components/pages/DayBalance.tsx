@@ -19,8 +19,7 @@ export function DayBalance() {
   usePromiseSafe(
     transactionService.find({
       date: {
-        $eq: new Date(year, month, day).getTime(),
-        $lt: new Date(year, month, day + 1).getTime()
+        $eq: new Date(year, month, day).getTime()
       }
     }),
     setTransactionForDay

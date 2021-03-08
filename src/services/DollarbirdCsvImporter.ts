@@ -11,14 +11,14 @@ export function importData(csvStr: string) {
     .map((rowSplitted: string[]) => {
       const categoryPromise = categoryDao
         .find({
-          name: rowSplitted[4]
+          _id: rowSplitted[4]
         })
         .then((categoryList) => {
           if (categoryList.length !== 0) {
             return categoryList[0];
           } else {
             return categoryDao.upsert({
-              name: rowSplitted[4],
+              _id: rowSplitted[4],
               color: CategoryColor.OLIVE
             });
           }

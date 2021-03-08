@@ -1,4 +1,4 @@
-import {IModel, PouchCollection} from 'pouchorm';
+import { IModel, PouchCollection } from 'pouchorm';
 import PouchDB from 'pouchdb-browser';
 import findPlugin from 'pouchdb-find';
 
@@ -13,7 +13,7 @@ export enum CategoryColor {
   PURPLE = '#770088'
 }
 export type Category = {
-  name: string;
+  _id: string;
   color: CategoryColor;
 } & IModel;
 
@@ -27,7 +27,7 @@ export class CategoryCollection extends PouchCollection<Category> {
     });
   }
   beforeInit(): Promise<void> {
-    return this.addIndex(['name']).then(() => {
+    return this.addIndex(['_id']).then(() => {
       return super.beforeInit();
     });
   }

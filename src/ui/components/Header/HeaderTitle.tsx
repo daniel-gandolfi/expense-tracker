@@ -1,15 +1,19 @@
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
-import { DAY_BALANCE_ROUTE, IMPORT_ROUTE, MONTH_BALANCE_ROUTE } from 'ui/utils/routes';
+import {
+  createMonthBalanceRoute,
+  DAY_BALANCE_ROUTE,
+  IMPORT_ROUTE,
+  MONTH_BALANCE_ROUTE
+} from 'ui/utils/routes';
 import React, { memo, useState } from 'react';
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles, Typography, Link, Box } from '@material-ui/core';
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
 import { formatMoneyLocal } from 'ui/utils/formatting';
 
-function formatDayDate(date: Date) {
+function formatMonthForDayPage(date: Date) {
   return new Intl.DateTimeFormat(navigator.language || 'it_IT', {
-    day: 'numeric',
-    month: 'short',
+    month: 'numeric',
     year: 'numeric'
   }).format(date);
 }
@@ -34,7 +38,6 @@ function DailyBalanceTitle() {
   const year = routeMatch ? +routeMatch.params.yearParam : new Date().getFullYear();
   const month = routeMatch ? +routeMatch.params.monthParam : new Date().getMonth();
   const day = routeMatch ? +routeMatch.params.dayParam : new Date().getDate();
-  const title = formatDayDate(new Date(year, month, day));
   const [dayBalance, setDayBalance] = useState<number>(0);
 
   usePromiseSafe(transactionService.getBalanceForDay(year, month, day), setDayBalance, (x) =>
@@ -43,7 +46,13 @@ function DailyBalanceTitle() {
   );
   return (
     <Typography variant="h6" className={classes.title}>
-      {title} ({formatMoneyLocal(dayBalance / 100)})
+      <Link color={'inherit'} href={createMonthBalanceRoute(year, month)} underline={'always'}>
+        {formatMonthForDayPage(new Date(year, month))}
+      </Link>
+      <Box marginLeft={1} marginRight={1} component={'span'}>
+        {day},
+      </Box>
+      ({formatMoneyLocal(dayBalance / 100)})
     </Typography>
   );
 }

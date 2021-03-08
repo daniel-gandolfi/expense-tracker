@@ -8,12 +8,13 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-d
 import { MonthBalance } from 'ui/components/pages/MonthBalance';
 import {
   createMonthBalanceRoute,
-  DAY_BALANCE_ROUTE,
+  DAY_BALANCE_ROUTE, EDIT_TRANSACTION_ROUTE,
   IMPORT_ROUTE,
   MONTH_BALANCE_ROUTE
 } from 'ui/utils/routes';
 import { Import } from 'ui/components/pages/Import';
 import { DayBalance } from 'ui/components/pages/DayBalance';
+import {EditTransaction} from "ui/components/pages/EditTransaction";
 
 function App() {
   const [isDbInit, setDbInit] = useState<boolean>(false);
@@ -30,6 +31,9 @@ function App() {
         <Router>
           <Header />
           <Switch>
+            <Route path={EDIT_TRANSACTION_ROUTE}>
+              <EditTransaction id={""} />
+            </Route>
             <Route path={DAY_BALANCE_ROUTE}>
               <DayBalance />
             </Route>
