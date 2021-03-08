@@ -25,7 +25,7 @@ export function MonthPreview({ year, month }: MonthPreviewProps) {
     return getDayArrayForMonth(year, month).map(function (day) {
       return (
         <GridListTile key={day} cols={1}>
-            <DayComponent day={day} transactionList={transactionByDay[day] || []} />
+          <DayComponent day={day} transactionList={transactionByDay[day] || []} />
         </GridListTile>
       );
     });
@@ -34,7 +34,9 @@ export function MonthPreview({ year, month }: MonthPreviewProps) {
   return (
     <>
       <DayNameList year={year} month={month} />
-      <GridList  cellHeight={"auto"} cols={7} >{dayList}</GridList>
+      <GridList cellHeight={'auto'} cols={7}>
+        {dayList}
+      </GridList>
     </>
   );
 }
