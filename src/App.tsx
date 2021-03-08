@@ -5,7 +5,7 @@ import { transactionService } from 'services/transaction/PouchOrmTransactionServ
 import { ownerDao } from 'services/owner/OwnerService';
 import { categoryDao } from 'services/category/CategoryService';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
-import { MonthBalance } from 'ui/components/MonthBalance';
+import { MonthBalance } from 'ui/components/pages/MonthBalance';
 import {
   createMonthBalanceRoute,
   DAY_BALANCE_ROUTE,
@@ -13,7 +13,7 @@ import {
   MONTH_BALANCE_ROUTE
 } from 'ui/utils/routes';
 import { Import } from 'ui/components/pages/Import';
-import {DayBalance} from "ui/components/pages/DayBalance";
+import { DayBalance } from 'ui/components/pages/DayBalance';
 
 function App() {
   const [isDbInit, setDbInit] = useState<boolean>(false);
