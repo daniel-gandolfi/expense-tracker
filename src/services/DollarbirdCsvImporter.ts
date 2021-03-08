@@ -43,12 +43,17 @@ export function importData(csvStr: string) {
       return { rowSplitted, categoryPromise, ownerPromise };
     })
     .map(({ rowSplitted, categoryPromise, ownerPromise }) => {
+      const date = new Date(rowSplitted[0]);
+      date.setHours(0);
+      date.setMinutes(0);
+      date.setSeconds(0);
+      date.setMilliseconds(0);
       return Promise.all([categoryPromise, ownerPromise]).then(function ([categoryId, ownerId]) {
         return {
           amount: Math.floor(+rowSplitted[1] * 100),
           categoryId,
           confirmed: Boolean(rowSplitted[3]),
-          date: new Date(rowSplitted[0]).getTime(),
+          date: date.getTime(),
           description: rowSplitted[5],
           label: rowSplitted[2].substring(1, rowSplitted[2].length - 1),
           ownerId
