@@ -13,7 +13,6 @@ export interface MonthPreviewProps {
   month: number;
 }
 
-export const singleDayFormatter = new Intl.DateTimeFormat(navigator.language || 'it_IT', {
-  weekday: 'short',
-  day: 'numeric'
+export const dayNameExtendedFormatter = new Intl.DateTimeFormat(navigator.language || 'it_IT', {
+  weekday: 'short'
 });
