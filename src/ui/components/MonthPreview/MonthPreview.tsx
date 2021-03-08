@@ -34,7 +34,7 @@ export function MonthPreview({ year, month }: MonthPreviewProps) {
   return (
     <>
       <DayNameList year={year} month={month} />
-      <GridList cols={7} >{dayList}</GridList>
+      <GridList  cellHeight={"auto"} cols={7} >{dayList}</GridList>
     </>
   );
 }
