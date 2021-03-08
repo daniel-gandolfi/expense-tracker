@@ -13,6 +13,9 @@ import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
 import { formatMoneyLocal } from 'ui/utils/formatting';
 import EqualizerIcon from '@material-ui/icons/Equalizer';
+import { MONTH_BALANCE_ROUTE } from 'ui/utils/routes';
+import { useRouteMatch } from 'react-router-dom';
+
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat(navigator.language || 'it_IT', {
     month: 'long',
@@ -36,14 +39,17 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function Header({ month, year }: HeaderProps) {
+export function Header() {
   const classes = useStyles();
   const [isMenuOpen, setMenuOpen] = useState<boolean>(false);
 
-  const monthStartDate = new Date(year, month, 1, 0, 0, 0, 0);
   const [totalBalance, setTotalBalance] = useState<number>(0);
   // eslint-disable-next-line no-console
   usePromiseSafe(transactionService.getTotalBalance(), setTotalBalance, (x) => console.log(x));
+  const routeMatch = useRouteMatch<{ monthParam: string; yearParam: string }>(MONTH_BALANCE_ROUTE);
+  const title = formatDate(
+    routeMatch ? new Date(+routeMatch.params.yearParam, +routeMatch.params.monthParam) : new Date()
+  );
   return (
     <AppBar position="static">
       <Toolbar>
@@ -53,11 +59,11 @@ export function Header({ month, year }: HeaderProps) {
           </Menu>
         </IconButton>
         <Typography variant="h6" className={classes.title}>
-          {formatDate(monthStartDate)}
+          {title}
         </Typography>
         <Button color="inherit">
           {formatMoneyLocal(totalBalance / 100)}
-          <EqualizerIcon aria-label={"Stats"}/>
+          <EqualizerIcon aria-label={'Stats'} />
         </Button>
       </Toolbar>
     </AppBar>

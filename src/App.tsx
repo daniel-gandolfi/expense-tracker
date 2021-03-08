@@ -6,16 +6,12 @@ import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
 import { ownerDao } from 'services/owner/OwnerService';
 import { categoryDao } from 'services/category/CategoryService';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,Redirect
-} from "react-router-dom";
-import {MonthBalance} from "ui/components/MonthBalance";
-import {createMonthBalanceRoute, MONTH_BALANCE_ROUTE} from "ui/utils/routes";
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
+import { MonthBalance } from 'ui/components/MonthBalance';
+import { createMonthBalanceRoute, MONTH_BALANCE_ROUTE } from 'ui/utils/routes';
 
 function App() {
-  const [dateToShow, ] = useState<Date>(new Date());
+  const [dateToShow] = useState<Date>(new Date());
   const [isDbInit, setDbInit] = useState<boolean>(false);
   const [importing, setImport] = useState<boolean>(false);
   const [importError, setImportError] = useState<string>('');
@@ -46,14 +42,16 @@ function App() {
         <>
           <Router>
             <button onClick={importDataCallback}>Import data</button>
-            <Header month={dateToShow.getMonth()} year={dateToShow.getFullYear()} />
+            <Header />
 
             <Switch>
-              <Route path={MONTH_BALANCE_ROUTE} >
-                <MonthBalance/>
+              <Route path={MONTH_BALANCE_ROUTE}>
+                <MonthBalance />
               </Route>
-              <Route path={"/"}>
-                <Redirect to={createMonthBalanceRoute(new Date().getFullYear(), new Date().getMonth())}/>
+              <Route path={'/'}>
+                <Redirect
+                  to={createMonthBalanceRoute(new Date().getFullYear(), new Date().getMonth())}
+                />
               </Route>
             </Switch>
           </Router>
