@@ -1,8 +1,9 @@
 import { TransactionModel } from 'collection/TransactionCollection';
-import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { Box, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { DayTransactionList } from 'ui/components/MonthPreview/DayTransactionList';
 import { DayBalance } from 'ui/components/MonthPreview/DayBalance';
 import React from 'react';
+import { formatMoneyLocal } from 'ui/utils/formatting';
 
 function transactionListBalanceReducer(total: number, transaction: TransactionModel) {
   return total + transaction.amount;
@@ -15,18 +16,24 @@ type DayComponentProps = {
 export function DayComponent({ day, transactionList }: DayComponentProps) {
   const theme = useTheme();
   const isScreenBig = useMediaQuery(theme.breakpoints.up('sm'));
+  const dayBalance = transactionList ? transactionList.reduce(transactionListBalanceReducer, 0) : 0;
   const dayComponentBody = isScreenBig ? (
     <DayTransactionList transactionList={transactionList} />
   ) : (
-    <DayBalance
-      amount={transactionList ? transactionList.reduce(transactionListBalanceReducer, 0) : 0}
-    />
+    <DayBalance amount={dayBalance} />
   );
   return (
     <>
-      <Typography variant={'body1'} color="textSecondary">
-        {day}
-      </Typography>
+      <Box>
+        <Typography variant={'h6'} color="textSecondary" component={'span'}>
+          {day} &nbsp;
+        </Typography>
+        {transactionList.length !== 0 ? (
+          <Typography variant={'body1'} color="textSecondary" component={'span'}>
+            {formatMoneyLocal(dayBalance / 100)}
+          </Typography>
+        ) : null}
+      </Box>
       {dayComponentBody}
     </>
   );
