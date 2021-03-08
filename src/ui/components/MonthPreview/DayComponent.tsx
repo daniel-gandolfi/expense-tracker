@@ -15,9 +15,10 @@ type DayComponentProps = {
 };
 export function DayComponent({ day, transactionList }: DayComponentProps) {
   const theme = useTheme();
-  const isScreenBig = useMediaQuery(theme.breakpoints.up('sm'));
+  const isScreenNotSmall = useMediaQuery(theme.breakpoints.up('sm'));
+  const isScreenBiggerThanMedium = useMediaQuery(theme.breakpoints.up('md'));
   const dayBalance = transactionList ? transactionList.reduce(transactionListBalanceReducer, 0) : 0;
-  const dayComponentBody = isScreenBig ? (
+  const dayComponentBody = isScreenNotSmall ? (
     <DayTransactionList transactionList={transactionList} />
   ) : (
     <DayBalance amount={dayBalance} />
@@ -28,7 +29,7 @@ export function DayComponent({ day, transactionList }: DayComponentProps) {
         <Typography variant={'h6'} color="textSecondary" component={'span'}>
           {day} &nbsp;
         </Typography>
-        {transactionList.length !== 0 ? (
+        {isScreenBiggerThanMedium && transactionList.length !== 0 ? (
           <Typography variant={'body1'} color="textSecondary" component={'span'}>
             {formatMoneyLocal(dayBalance / 100)}
           </Typography>
