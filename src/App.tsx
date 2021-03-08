@@ -6,8 +6,14 @@ import { ownerDao } from 'services/owner/OwnerService';
 import { categoryDao } from 'services/category/CategoryService';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import { MonthBalance } from 'ui/components/MonthBalance';
-import { createMonthBalanceRoute, IMPORT_ROUTE, MONTH_BALANCE_ROUTE } from 'ui/utils/routes';
+import {
+  createMonthBalanceRoute,
+  DAY_BALANCE_ROUTE,
+  IMPORT_ROUTE,
+  MONTH_BALANCE_ROUTE
+} from 'ui/utils/routes';
 import { Import } from 'ui/components/pages/Import';
+import {DayBalance} from "ui/components/pages/DayBalance";
 
 function App() {
   const [isDbInit, setDbInit] = useState<boolean>(false);
@@ -24,6 +30,9 @@ function App() {
         <Router>
           <Header />
           <Switch>
+            <Route path={DAY_BALANCE_ROUTE}>
+              <DayBalance />
+            </Route>
             <Route path={MONTH_BALANCE_ROUTE}>
               <MonthBalance />
             </Route>
