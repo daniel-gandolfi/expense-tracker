@@ -2,11 +2,11 @@ import Swipe from 'react-easy-swipe';
 import { MonthPreview } from 'ui/components/MonthPreview/MonthPreview';
 import React from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import {createMonthBalanceRoute} from "ui/utils/routes";
+import { createMonthBalanceRoute } from 'ui/utils/routes';
 
 export function MonthBalance() {
   const history = useHistory();
-  const { monthParam, yearParam } = useParams<{monthParam:string, yearParam:string}>();
+  const { monthParam, yearParam } = useParams<{ monthParam: string; yearParam: string }>();
   const year = yearParam ? +yearParam : new Date().getFullYear();
   const month = monthParam ? +monthParam : new Date().getMonth();
 
