@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FormControl, InputLabel, Select, TextField } from '@material-ui/core';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
 import { categoryDao } from 'services/category/CategoryService';
-import { Category } from 'collection/CategoryCollection';
+import { CategoryModel } from 'collection/CategoryCollection';
 import { TransactionModel } from 'collection/TransactionCollection';
 
 type EditTransactionProps = {
@@ -18,7 +18,7 @@ export function EditTransaction({ id }: EditTransactionProps) {
     label: '',
     ownerId: ''
   };
-  const [categoryList, setCategoryList] = useState<Category[]>();
+  const [categoryList, setCategoryList] = useState<CategoryModel[]>();
   usePromiseSafe(categoryDao.find({}), setCategoryList);
   useEffect(() => {
     if (categoryList && categoryList.length > 0) {

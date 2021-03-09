@@ -12,7 +12,7 @@ import {
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import { categoryDao } from 'services/category/CategoryService';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
-import { Category } from 'collection/CategoryCollection';
+import { CategoryModel } from 'collection/CategoryCollection';
 import { formatMoneyLocal } from 'ui/utils/formatting';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -26,7 +26,7 @@ type TransactionRowProps = {
 export function TransactionRow({ transaction }: TransactionRowProps) {
   const theme = useTheme();
   const isScreenNotSmall = useMediaQuery(theme.breakpoints.up('sm'));
-  const [transactionCategory, setTransactionCategory] = useState<Category>();
+  const [transactionCategory, setTransactionCategory] = useState<CategoryModel>();
   usePromiseSafe(categoryDao.findById(transaction.categoryId), setTransactionCategory);
 
   return (

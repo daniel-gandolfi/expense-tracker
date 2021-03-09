@@ -12,14 +12,14 @@ export enum CategoryColor {
   CYAN = '#007788',
   PURPLE = '#770088'
 }
-export type Category = {
+export type CategoryModel = {
   _id: string;
   color: CategoryColor;
 } & IModel;
 
 PouchDB.plugin(findPlugin);
 
-export class CategoryCollection extends PouchCollection<Category> {
+export class CategoryCollection extends PouchCollection<CategoryModel> {
   constructor() {
     super('owner', {
       revs_limit: 1,
