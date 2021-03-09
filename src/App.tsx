@@ -4,10 +4,9 @@ import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
 import { ownerDao } from 'services/owner/OwnerService';
 import { categoryDao } from 'services/category/CategoryService';
-import { BrowserRouter as Router, Switch, Route, Redirect, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import { MonthBalance } from 'ui/components/pages/MonthBalance';
 import {
-  createEditTransactionRoute,
   createMonthBalanceRoute,
   DAY_BALANCE_ROUTE,
   EDIT_TRANSACTION_ROUTE,
@@ -17,8 +16,7 @@ import {
 import { Import } from 'ui/components/pages/Import';
 import { DayBalance } from 'ui/components/pages/DayBalance';
 import { EditTransaction } from 'ui/components/pages/EditTransaction';
-import { Fab } from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
+import { AddTransactionFab } from 'ui/components/AddTransactionFab';
 
 function App() {
   const [isDbInit, setDbInit] = useState<boolean>(false);
@@ -53,12 +51,8 @@ function App() {
               />
             </Route>
           </Switch>
+          <AddTransactionFab />
         </Router>
-        <Fab color="primary" aria-label="add">
-          <Link to={createEditTransactionRoute('')}>
-            <AddIcon />
-          </Link>
-        </Fab>
       </>
     );
   } else {
