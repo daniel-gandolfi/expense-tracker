@@ -26,7 +26,7 @@ export function Import() {
       },
       function (err) {
         setImport(false);
-        setImportMessage(err.toString);
+        setImportMessage(err.toString());
       }
     );
   };
