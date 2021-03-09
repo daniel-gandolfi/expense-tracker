@@ -10,7 +10,7 @@ export type TransactionModel = {
   confirmed: boolean;
   categoryId: string;
   description: string;
-  ownerId: string;
+  walletId: string;
 } & IModel;
 
 PouchDB.plugin(findPlugin);
@@ -68,7 +68,7 @@ export class TransactionCollection extends PouchCollectionWithViews<TransactionM
         })
       );
     }
-    return Promise.allSettled([
+    return Promise.all([
       this.queryTotalBalanceByDay,
       this.addIndex(['date'], 'dateIndex'),
       this.addIndex(['categoryId'], 'categoryIndex')

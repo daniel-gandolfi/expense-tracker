@@ -1,66 +1,148 @@
 import { categoryDao } from 'services/category/CategoryService';
-import { CategoryColor } from 'model/Category';
 import { ownerDao } from 'services/owner/OwnerService';
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import { CategoryColor } from 'collection/CategoryCollection';
+import { walletDao } from 'dao/WalletDao';
+
+function importDollarbirdString(str: string) {
+  if (str.length > 2) {
+    return str.substring(1, str.length - 1);
+  } else {
+    return str;
+  }
+}
+type IntermediateResult = {
+  insertDate: Date;
+  amount: number;
+  label: string;
+  confirmed: boolean;
+  categoryName: string;
+  description: string;
+  ownerName: string;
+  ownerMail: string;
+};
+
+type ColorKey = keyof typeof CategoryColor;
+
+function createWalletIdForOwner(ownerName: string) {
+  return ownerName + ' Wallet';
+}
+
+function createDerivatedMaps(intermediateResult: IntermediateResult[]) {
+  //map to return
+  const ownerMap: Record<string, { name: string; email: string }> = {};
+  const walletMap: Record<string, { name: string; ownerList: string[] }> = {};
+  const categoryMap: Record<string, { name: string; colorKey: ColorKey }> = {};
+  // map to speed up
+  const walletListByOwnerEmail: Record<string, string[]> = {};
+
+  const colorGenerator = function* () {
+    const availableColors: ColorKey[] = Object.keys(CategoryColor) as ColorKey[];
+    let index = 0;
+    while (true) {
+      yield availableColors[index];
+      // i select with 2 colors "distance" to improve constrast as much as possible.
+      // I once heard of a library that generates enough contrast maybe i should find it
+      index = (index + 2) % availableColors.length;
+    }
+  };
+
+  intermediateResult.forEach(function ({ ownerMail, ownerName, categoryName }) {
+    ownerMap[ownerMail] = {
+      email: ownerMail,
+      name: ownerName
+    };
+
+    categoryMap[categoryName] = {
+      name: categoryName,
+      colorKey: colorGenerator().next().value
+    };
+
+    const walletId = createWalletIdForOwner(ownerName);
+    if (!walletListByOwnerEmail[ownerMail]) {
+      walletMap[walletId] = {
+        name: walletId,
+        ownerList: [ownerMail]
+      };
+      walletListByOwnerEmail[ownerMail] = [walletId];
+    } else {
+      // strange bahaviour but i shall create another wallet
+      if (!walletListByOwnerEmail[ownerMail].includes(walletId)) {
+        walletMap[walletId] = {
+          name: walletId,
+          ownerList: [ownerMail]
+        };
+        walletListByOwnerEmail[ownerMail] = walletListByOwnerEmail[ownerMail].concat([walletId]);
+      }
+    }
+  });
+
+  return {
+    ownerMap,
+    walletMap,
+    categoryMap
+  };
+}
 
 export function importData(csvStr: string) {
-  const transactionList = csvStr
+  const intermediateResultList: IntermediateResult[] = csvStr
     .split('\n')
     .slice(1)
-    .map((rowString: string) => rowString.split(','))
-    .map((rowSplitted: string[]) => {
-      const categoryPromise = categoryDao
-        .find({
-          _id: rowSplitted[4]
-        })
-        .then((categoryList) => {
-          if (categoryList.length !== 0) {
-            return categoryList[0];
-          } else {
-            return categoryDao.upsert({
-              _id: rowSplitted[4],
-              color: CategoryColor.OLIVE
-            });
-          }
-        })
-        .then((category) => category._id || '');
-      const ownerPromise = ownerDao
-        .find({
-          name: rowSplitted[6],
-          email: rowSplitted[7]
-        })
-        .then((ownerList) => {
-          if (ownerList.length !== 0) {
-            return ownerList[0];
-          } else {
-            return ownerDao.upsert({
-              name: rowSplitted[6],
-              email: rowSplitted[7]
-            });
-          }
-        })
-        .then((owner) => owner._id || '');
-      return { rowSplitted, categoryPromise, ownerPromise };
-    })
-    .map(({ rowSplitted, categoryPromise, ownerPromise }) => {
-      const date = new Date(rowSplitted[0]);
-      date.setHours(0);
-      date.setMinutes(0);
-      date.setSeconds(0);
-      date.setMilliseconds(0);
-      return Promise.all([categoryPromise, ownerPromise]).then(function ([categoryId, ownerId]) {
-        return {
-          amount: Math.floor(+rowSplitted[1] * 100),
-          categoryId,
-          confirmed: Boolean(rowSplitted[3]),
-          date: date.getTime(),
-          description: rowSplitted[5],
-          label: rowSplitted[2].substring(1, rowSplitted[2].length - 1),
-          ownerId
-        };
-      });
+    .map((rowString: string) => {
+      const rowSplitted = rowString.split(',');
+      const insertDate = new Date(rowSplitted[0]);
+      insertDate.setHours(0);
+      insertDate.setMinutes(0);
+      insertDate.setSeconds(0);
+      insertDate.setMilliseconds(0);
+      return {
+        insertDate,
+        amount: Math.floor(+rowSplitted[1] * 100),
+        label: importDollarbirdString(rowSplitted[2]),
+        confirmed: Boolean(rowSplitted[3]),
+        categoryName: importDollarbirdString(rowSplitted[4]),
+        description: importDollarbirdString(rowSplitted[5]),
+        ownerName: importDollarbirdString(rowSplitted[6]),
+        ownerMail: importDollarbirdString(rowSplitted[7])
+      };
     });
-  return Promise.all(transactionList).then((transactionList) => {
-    return transactionService.bulkUpsert(transactionList);
+  const { walletMap, ownerMap, categoryMap } = createDerivatedMaps(intermediateResultList);
+
+  const insertCategoryPromiseList = Object.values(categoryMap).map(function ({ name, colorKey }) {
+    return categoryDao.upsert({
+      _id: name,
+      color: CategoryColor[colorKey]
+    });
   });
+  const insertOwnerPromiseList = Object.values(ownerMap).map(function ({ name, email }) {
+    return ownerDao.upsert({
+      _id: email,
+      name
+    });
+  });
+  const insertWalletPromiseList = Object.values(walletMap).map(function ({ name, ownerList }) {
+    return walletDao.upsert({
+      _id: name,
+      ownerIdList: ownerList
+    });
+  });
+
+  const transactionList = intermediateResultList.map((intermediateResult) => {
+    return {
+      amount: intermediateResult.amount,
+      categoryId: intermediateResult.categoryName,
+      confirmed: intermediateResult.confirmed,
+      date: intermediateResult.insertDate.getTime(),
+      description: intermediateResult.description,
+      label: intermediateResult.label,
+      walletId: createWalletIdForOwner(intermediateResult.ownerName)
+    };
+  });
+
+  return Promise.all([
+    Promise.all(insertCategoryPromiseList),
+    Promise.all(insertOwnerPromiseList),
+    Promise.all(insertWalletPromiseList),
+    transactionService.bulkUpsert(transactionList)
+  ]);
 }
