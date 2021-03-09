@@ -1,7 +1,7 @@
-import { categoryDao } from 'services/category/CategoryService';
+import { categoryDao, randomColorSequenceGenerator } from 'services/category/CategoryService';
 import { ownerDao } from 'services/owner/OwnerService';
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
-import { CategoryColor } from 'collection/CategoryCollection';
+import { CategoryColor, ColorKey } from 'collection/CategoryCollection';
 import { walletDao } from 'dao/WalletDao';
 
 function importDollarbirdString(str: string) {
@@ -22,8 +22,6 @@ type IntermediateResult = {
   ownerMail: string;
 };
 
-type ColorKey = keyof typeof CategoryColor;
-
 function createWalletIdForOwner(ownerName: string) {
   return ownerName + ' Wallet';
 }
@@ -35,17 +33,7 @@ function createDerivatedMaps(intermediateResult: IntermediateResult[]) {
   const categoryMap: Record<string, { name: string; colorKey: ColorKey }> = {};
   // map to speed up
   const walletListByOwnerEmail: Record<string, string[]> = {};
-
-  const colorGenerator = function* () {
-    const availableColors: ColorKey[] = Object.keys(CategoryColor) as ColorKey[];
-    let index = 0;
-    while (true) {
-      yield availableColors[index];
-      // i select with 2 colors "distance" to improve constrast as much as possible.
-      // I once heard of a library that generates enough contrast maybe i should find it
-      index = (index + 2) % availableColors.length;
-    }
-  };
+  const randomColorGenerator = randomColorSequenceGenerator();
 
   intermediateResult.forEach(function ({ ownerMail, ownerName, categoryName }) {
     ownerMap[ownerMail] = {
@@ -55,7 +43,7 @@ function createDerivatedMaps(intermediateResult: IntermediateResult[]) {
 
     categoryMap[categoryName] = {
       name: categoryName,
-      colorKey: colorGenerator().next().value
+      colorKey: randomColorGenerator.next().value
     };
 
     const walletId = createWalletIdForOwner(ownerName);

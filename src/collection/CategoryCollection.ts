@@ -57,6 +57,8 @@ export enum CategoryColor {
   PINK_SHINY = '#F375F3'
 }
 
+export type ColorKey = keyof typeof CategoryColor;
+
 export type CategoryModel = {
   _id: string;
   color: CategoryColor;
