@@ -12,7 +12,7 @@ export function createDayBalanceRoute(year: number, month: number, day: number) 
     .replace(':dayParam', day.toString());
 }
 
-export const EDIT_TRANSACTION_ROUTE = '/transaction/edit/:id';
+export const EDIT_TRANSACTION_ROUTE = '/transaction/edit/:id?';
 export function createEditTransactionRoute(transactionId: string | undefined) {
   return EDIT_TRANSACTION_ROUTE.replace(':id', transactionId || '');
 }
