@@ -28,9 +28,10 @@ export function DayComponent({ year, month, day, transactionList }: DayComponent
   ) : (
     <DayBalance amount={dayBalance} />
   );
+  const dayBalanceRoute = createDayBalanceRoute(year, month, day);
   return (
     <>
-      <Box onClick={() => history.push(createDayBalanceRoute(year, month, day))}>
+      <Box onClick={() => history.push(dayBalanceRoute)}>
         <Typography variant={'h6'} color="textSecondary" component={'span'}>
           {day} &nbsp;
         </Typography>

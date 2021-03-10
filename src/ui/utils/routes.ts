@@ -7,7 +7,7 @@ export function createMonthBalanceRoute(year: number, month: number) {
 }
 export const DAY_BALANCE_ROUTE = '/balance/:yearParam/:monthParam/:dayParam';
 export function createDayBalanceRoute(year: number, month: number, day: number) {
-  return MONTH_BALANCE_ROUTE.replace(':yearParam', year.toString())
+  return DAY_BALANCE_ROUTE.replace(':yearParam', year.toString())
     .replace(':monthParam', month.toString())
     .replace(':dayParam', day.toString());
 }
