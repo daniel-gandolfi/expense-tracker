@@ -1,18 +1,11 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  IconButton,
-  Toolbar,
-  AppBar,
-  makeStyles
-} from '@material-ui/core';
+import { Button, IconButton, Toolbar, AppBar, makeStyles } from '@material-ui/core';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
-import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import { transactionDao } from 'dao/TransactionDao';
 import { formatMoneyLocal } from 'ui/utils/formatting';
 import EqualizerIcon from '@material-ui/icons/Equalizer';
-import {HeaderTitle} from "ui/components/Header/HeaderTitle";
-import {HeaderMenu} from "ui/components/Header/HeaderMenu";
-
+import { HeaderTitle } from 'ui/components/Header/HeaderTitle';
+import { HeaderMenu } from 'ui/components/Header/HeaderMenu';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,12 +24,12 @@ export function Header() {
 
   const [totalBalance, setTotalBalance] = useState<number>(0);
   // eslint-disable-next-line no-console
-  usePromiseSafe(transactionService.getTotalBalance(), setTotalBalance, (x) => console.error(x));
+  usePromiseSafe(transactionDao.getTotalBalance(), setTotalBalance, (x) => console.error(x));
   return (
     <AppBar position="static">
       <Toolbar>
         <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-          <HeaderMenu/>
+          <HeaderMenu />
         </IconButton>
         <HeaderTitle />
         <Button color="inherit">

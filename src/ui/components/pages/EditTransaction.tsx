@@ -9,10 +9,10 @@ import {
   Select,
   TextField
 } from '@material-ui/core';
-import { categoryDao } from 'services/category/CategoryService';
+import { categoryDao } from 'dao/CategoryDao';
 import { CategoryModel } from 'collection/CategoryCollection';
 import { TransactionModel } from 'collection/TransactionCollection';
-import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import { transactionDao } from 'dao/TransactionDao';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 import SaveIcon from '@material-ui/icons/Save';
@@ -53,7 +53,7 @@ function useTransaction(
   });
   useEffect(() => {
     if (id) {
-      transactionService.findById(id).then(setTransaction);
+      transactionDao.findById(id).then(setTransaction);
     }
   }, [id]);
   return [transaction, setTransaction];
@@ -99,7 +99,7 @@ export function EditTransaction() {
       dateClean.setMinutes(0);
       dateClean.setHours(0);
       transaction.date = dateClean.getTime();
-      transactionService.upsert(transaction).then(function (insertedTransaction) {
+      transactionDao.upsert(transaction).then(function (insertedTransaction) {
         history.replace(createEditTransactionRoute(insertedTransaction._id));
         history.push('/');
       });

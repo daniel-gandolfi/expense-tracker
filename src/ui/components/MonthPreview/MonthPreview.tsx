@@ -4,14 +4,14 @@ import { getDayArrayForMonth, MonthPreviewProps } from 'ui/components/MonthPrevi
 import { DayNameList } from 'ui/components/MonthPreview/DayNameList';
 import { TransactionModel } from 'collection/TransactionCollection';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
-import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import { transactionDao } from 'dao/TransactionDao';
 import { groupBy } from 'lodash';
 import { DayComponent } from 'ui/components/MonthPreview/DayComponent';
 
 export function MonthPreview({ year, month }: MonthPreviewProps) {
   const [transactionForMonth, setTransactionForMonth] = useState<TransactionModel[]>();
   usePromiseSafe(
-    transactionService.find({
+    transactionDao.find({
       date: {
         $gte: new Date(year, month).getTime(),
         $lt: new Date(year, month + 1).getTime()

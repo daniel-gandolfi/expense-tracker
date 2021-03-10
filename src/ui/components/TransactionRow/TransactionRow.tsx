@@ -10,7 +10,7 @@ import {
   useTheme
 } from '@material-ui/core';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import { categoryDao } from 'services/category/CategoryService';
+import { categoryDao } from 'dao/CategoryDao';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
 import { CategoryModel } from 'collection/CategoryCollection';
 import { formatMoneyLocal } from 'ui/utils/formatting';
@@ -18,7 +18,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { createEditTransactionRoute } from 'ui/utils/routes';
 import { Link } from 'react-router-dom';
-import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import { transactionDao } from 'dao/TransactionDao';
 
 type TransactionRowProps = {
   transaction: TransactionModel;
@@ -49,7 +49,7 @@ export function TransactionRow({ transaction }: TransactionRowProps) {
           <IconButton
             edge="end"
             aria-label="delete"
-            onClick={() => transaction._id && transactionService.removeById(transaction._id)}>
+            onClick={() => transaction._id && transactionDao.removeById(transaction._id)}>
             <DeleteIcon />
           </IconButton>
         </ListItemSecondaryAction>

@@ -7,7 +7,7 @@ import {
 } from 'ui/utils/routes';
 import React, { memo, useState } from 'react';
 import { makeStyles, Typography, Link, Box } from '@material-ui/core';
-import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import { transactionDao } from 'dao/TransactionDao';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
 import { formatMoneyLocal } from 'ui/utils/formatting';
 
@@ -25,7 +25,7 @@ function formatMonthDate(date: Date) {
   }).format(date);
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   title: {
     flexGrow: 1
   }
@@ -40,7 +40,7 @@ function DailyBalanceTitle() {
   const day = routeMatch ? +routeMatch.params.dayParam : new Date().getDate();
   const [dayBalance, setDayBalance] = useState<number>(0);
 
-  usePromiseSafe(transactionService.getBalanceForDay(year, month, day), setDayBalance, (x) =>
+  usePromiseSafe(transactionDao.getBalanceForDay(year, month, day), setDayBalance, (x) =>
     // eslint-disable-next-line no-console
     console.error(x)
   );
@@ -65,7 +65,7 @@ function MonthlyBalanceTitle() {
   const title = formatMonthDate(routeMatch ? new Date(year, month) : new Date());
   const [monthBalance, setMonthBalance] = useState<number>(0);
 
-  usePromiseSafe(transactionService.getBalanceForMonth(year, month), setMonthBalance, (x) =>
+  usePromiseSafe(transactionDao.getBalanceForMonth(year, month), setMonthBalance, (x) =>
     // eslint-disable-next-line no-console
     console.error(x)
   );

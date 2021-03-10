@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import { transactionDao } from 'dao/TransactionDao';
 import { TransactionModel } from 'collection/TransactionCollection';
 import { TransactionRow } from 'ui/components/TransactionRow/TransactionRow';
 import { List } from '@material-ui/core';
@@ -17,7 +17,7 @@ export function DayBalance() {
   const [transactionForDay, setTransactionForDay] = useState<TransactionModel[]>();
   useEffect(() => {
     if (transactionForDay === undefined) {
-      transactionService
+      transactionDao
         .find({
           date: {
             $eq: new Date(year, month, day).getTime()
@@ -25,7 +25,7 @@ export function DayBalance() {
         })
         .then(setTransactionForDay);
     }
-  }, [transactionForDay]);
+  }, [day, month, year, transactionForDay]);
 
   return (
     <List>

@@ -1,5 +1,5 @@
 import { CategoryColor } from 'collection/CategoryCollection';
-import { categoryDao } from 'services/category/CategoryService';
+import { categoryDao } from './CategoryDao';
 
 function deepEquals(a: any, b: any) {
   return JSON.stringify(a) === JSON.stringify(b);
@@ -48,7 +48,7 @@ describe('categoryTests', () => {
       color: CategoryColor.OLIVE,
       _id: 'test'
     };
-    categoryDao.upsert(categoryToCreate).then(function (createdCategory) {
+    categoryDao.upsert(categoryToCreate).then(function () {
       categoryDao.find().then(function (res) {
         expect(res.length).toBe(1);
       });
@@ -133,5 +133,4 @@ describe('categoryTests', () => {
       });
     });
   });
-
 });

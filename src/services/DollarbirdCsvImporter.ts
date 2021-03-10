@@ -1,6 +1,6 @@
-import { categoryDao, randomColorSequenceGenerator } from 'services/category/CategoryService';
-import { ownerDao } from 'services/owner/OwnerService';
-import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import { categoryDao, randomColorSequenceGenerator } from 'dao/CategoryDao';
+import { ownerDao } from 'dao/OwnerDao';
+import { transactionDao } from 'dao/TransactionDao';
 import { CategoryColor, ColorKey } from 'collection/CategoryCollection';
 import { walletDao } from 'dao/WalletDao';
 
@@ -131,6 +131,6 @@ export function importData(csvStr: string) {
     Promise.all(insertCategoryPromiseList),
     Promise.all(insertOwnerPromiseList),
     Promise.all(insertWalletPromiseList),
-    transactionService.bulkUpsert(transactionList)
+    transactionDao.bulkUpsert(transactionList)
   ]);
 }

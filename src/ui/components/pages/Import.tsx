@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import React, { useState } from 'react';
 import { importData } from 'services/DollarbirdCsvImporter';
 import { dollarbirdCsvStr } from 'dollarbird';
-import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import { transactionDao } from 'dao/TransactionDao';
 import HomeIcon from '@material-ui/icons/Home';
 import { Box } from '@material-ui/core';
 
@@ -15,9 +15,9 @@ export function Import() {
     importData(dollarbirdCsvStr).then(
       function () {
         setImportMessage('reloading db');
-        transactionService.findOne({}).then((r) => {
+        transactionDao.findOne({}).then(() => {
           setImportMessage('Transactions imported, computing balance...');
-          transactionService.getTotalBalance().then(function () {
+          transactionDao.getTotalBalance().then(function () {
             setImportMessage('balance calculated');
             setTimeout(() => setImportMessage(''), 2000);
             setImport(false);

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Header } from 'ui/components/Header/Header';
 import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
-import { transactionService } from 'services/transaction/PouchOrmTransactionService';
-import { ownerDao } from 'services/owner/OwnerService';
-import { categoryDao } from 'services/category/CategoryService';
+import { transactionDao } from 'dao/TransactionDao';
+import { ownerDao } from 'dao/OwnerDao';
+import { categoryDao } from 'dao/CategoryDao';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import { MonthBalance } from 'ui/components/pages/MonthBalance';
 import {
@@ -21,7 +21,7 @@ import { AddTransactionFab } from 'ui/components/AddTransactionFab';
 function App() {
   const [isDbInit, setDbInit] = useState<boolean>(false);
   usePromiseSafe(
-    Promise.all([transactionService.afterInit(), ownerDao.afterInit(), categoryDao.afterInit()]),
+    Promise.all([transactionDao.afterInit(), ownerDao.afterInit(), categoryDao.afterInit()]),
     () => {
       setDbInit(true);
     }

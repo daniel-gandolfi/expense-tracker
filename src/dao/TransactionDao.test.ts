@@ -1,4 +1,4 @@
-import { transactionService } from 'services/transaction/PouchOrmTransactionService';
+import { transactionDao } from './TransactionDao';
 import { TransactionModel } from 'collection/TransactionCollection';
 
 function createTransactionModelWithoutId(
@@ -22,20 +22,20 @@ function createTransactionModelWithoutId(
 }
 describe('Transaction balance Tests', () => {
   test('default balance is 0', () => {
-    transactionService.getTotalBalance().then((balance) => expect(balance).toBe(0));
+    transactionDao.getTotalBalance().then((balance) => expect(balance).toBe(0));
   }, 60000);
   test('createTransaction with no amount does not change balance', () => {
-    transactionService.getTotalBalance().then((balanceBefore) => {
-      transactionService
+    transactionDao.getTotalBalance().then((balanceBefore) => {
+      transactionDao
         .upsert(createTransactionModelWithoutId(new Date(), 0, '1', true, 0, '', 0))
         .then(function () {
-          return transactionService.getTotalBalance();
+          return transactionDao.getTotalBalance();
         })
         .then((balanceAfter) => expect(balanceAfter).toBe(balanceBefore));
     });
   });
   test('createTransaction increases balance', () => {
-    transactionService.getTotalBalance().then((balanceBefore) => {
+    transactionDao.getTotalBalance().then((balanceBefore) => {
       const transactionToCreate = createTransactionModelWithoutId(
         new Date(),
         1,
@@ -45,10 +45,10 @@ describe('Transaction balance Tests', () => {
         '',
         0
       );
-      transactionService
+      transactionDao
         .upsert(transactionToCreate)
         .then(function () {
-          return transactionService.getTotalBalance();
+          return transactionDao.getTotalBalance();
         })
         .then((balanceAfter) => {
           expect(balanceAfter).not.toBe(balanceBefore);
@@ -57,15 +57,12 @@ describe('Transaction balance Tests', () => {
     });
   });
   test('2 createTransaction increases balance', () => {
-    transactionService.getTotalBalance().then((balanceBefore) => {
+    transactionDao.getTotalBalance().then((balanceBefore) => {
       const transaction1 = createTransactionModelWithoutId(new Date(), 3, '1', true, 0, '', 0);
       const transaction2 = createTransactionModelWithoutId(new Date(), 9, '2', true, 0, '', 0);
-      Promise.all([
-        transactionService.upsert(transaction1),
-        transactionService.upsert(transaction2)
-      ])
+      Promise.all([transactionDao.upsert(transaction1), transactionDao.upsert(transaction2)])
         .then(function () {
-          return transactionService.getTotalBalance();
+          return transactionDao.getTotalBalance();
         })
         .then((balanceAfter) => {
           expect(balanceAfter).toBe(balanceBefore + transaction1.amount + transaction2.amount);
@@ -74,18 +71,16 @@ describe('Transaction balance Tests', () => {
   });
   test('deleteTransaction changes balance', () => {
     Promise.all([
-      transactionService.upsert(
-        createTransactionModelWithoutId(new Date(), 3, '1', true, 0, '', 0)
-      ),
-      transactionService.upsert(createTransactionModelWithoutId(new Date(), 9, '2', true, 0, '', 0))
+      transactionDao.upsert(createTransactionModelWithoutId(new Date(), 3, '1', true, 0, '', 0)),
+      transactionDao.upsert(createTransactionModelWithoutId(new Date(), 9, '2', true, 0, '', 0))
     ]).then(([transaction1Created]) => {
       expect(transaction1Created._id).toBeDefined();
-      transactionService.getTotalBalance().then((balanceAfterAdd) => {
+      transactionDao.getTotalBalance().then((balanceAfterAdd) => {
         if (transaction1Created._id) {
-          transactionService
+          transactionDao
             .removeById(transaction1Created._id)
             .then(function () {
-              return transactionService.getTotalBalance();
+              return transactionDao.getTotalBalance();
             })
             .then((balanceAfterRemove) => {
               expect(balanceAfterRemove).toBe(balanceAfterAdd - transaction1Created.amount);
@@ -95,11 +90,11 @@ describe('Transaction balance Tests', () => {
     });
   });
   test('updateTransaction to update the transaction', () => {
-    transactionService
+    transactionDao
       .upsert(createTransactionModelWithoutId(new Date(), 3, '1', true, 0, '', 0))
       .then((transaction1Created) => {
         const newAmount = 1231231;
-        transactionService
+        transactionDao
           .upsert({
             ...transaction1Created,
             amount: newAmount
@@ -112,18 +107,16 @@ describe('Transaction balance Tests', () => {
   });
   test('updateTransaction changes balance', () => {
     Promise.all([
-      transactionService.upsert(
-        createTransactionModelWithoutId(new Date(), 3, '1', true, 0, '', 0)
-      ),
-      transactionService.upsert(createTransactionModelWithoutId(new Date(), 9, '2', true, 0, '', 0))
+      transactionDao.upsert(createTransactionModelWithoutId(new Date(), 3, '1', true, 0, '', 0)),
+      transactionDao.upsert(createTransactionModelWithoutId(new Date(), 9, '2', true, 0, '', 0))
     ]).then(function ([transaction1Created]) {
       expect(transaction1Created._id).toBeDefined();
-      transactionService.getTotalBalance().then((balanceAfterAdd) => {
+      transactionDao.getTotalBalance().then((balanceAfterAdd) => {
         if (transaction1Created._id) {
           const newAmount = 1111;
-          transactionService
+          transactionDao
             .upsert({ ...transaction1Created, amount: newAmount })
-            .then(() => transactionService.getTotalBalance())
+            .then(() => transactionDao.getTotalBalance())
             .then((finalBalance) =>
               expect(finalBalance).toBe(balanceAfterAdd - transaction1Created.amount + newAmount)
             );
