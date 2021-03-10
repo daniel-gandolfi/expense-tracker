@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { transactionService } from 'services/transaction/PouchOrmTransactionService';
-import { usePromiseSafe } from 'ui/hooks/usePromiseSafe';
 import { TransactionModel } from 'collection/TransactionCollection';
 import { TransactionRow } from 'ui/components/TransactionRow/TransactionRow';
 import { List } from '@material-ui/core';
@@ -16,14 +15,17 @@ export function DayBalance() {
   const month = monthParam ? +monthParam : new Date().getMonth();
   const day = dayParam ? +dayParam : new Date().getDate();
   const [transactionForDay, setTransactionForDay] = useState<TransactionModel[]>();
-  usePromiseSafe(
-    transactionService.find({
-      date: {
-        $eq: new Date(year, month, day).getTime()
-      }
-    }),
-    setTransactionForDay
-  );
+  useEffect(() => {
+    if (transactionForDay === undefined) {
+      transactionService
+        .find({
+          date: {
+            $eq: new Date(year, month, day).getTime()
+          }
+        })
+        .then(setTransactionForDay);
+    }
+  }, [transactionForDay]);
 
   return (
     <List>

@@ -18,6 +18,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { createEditTransactionRoute } from 'ui/utils/routes';
 import { Link } from 'react-router-dom';
+import { transactionService } from 'services/transaction/PouchOrmTransactionService';
 
 type TransactionRowProps = {
   transaction: TransactionModel;
@@ -45,7 +46,10 @@ export function TransactionRow({ transaction }: TransactionRowProps) {
               <EditIcon />
             </Link>
           </IconButton>
-          <IconButton edge="end" aria-label="delete">
+          <IconButton
+            edge="end"
+            aria-label="delete"
+            onClick={() => transaction._id && transactionService.removeById(transaction._id)}>
             <DeleteIcon />
           </IconButton>
         </ListItemSecondaryAction>

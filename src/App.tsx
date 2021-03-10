@@ -34,7 +34,7 @@ function App() {
           <Header />
           <Switch>
             <Route path={EDIT_TRANSACTION_ROUTE}>
-              <EditTransaction id={''} />
+              <EditTransaction />
             </Route>
             <Route path={DAY_BALANCE_ROUTE}>
               <DayBalance />
