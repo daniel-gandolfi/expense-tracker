@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1
+  },
+  balanceButton: {
+    marginLeft: 'auto'
   }
 }));
 
@@ -32,7 +35,7 @@ export function Header() {
           <HeaderMenu />
         </IconButton>
         <HeaderTitle />
-        <Button color="inherit">
+        <Button color="inherit" className={classes.balanceButton}>
           {formatMoneyLocal(totalBalance / 100)}
           <EqualizerIcon aria-label={'Stats'} />
         </Button>
